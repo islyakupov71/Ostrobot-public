@@ -1,0 +1,72 @@
+# Боевая сборка ОСТРО.
+#
+# Локально это не нужно: на компьютере хватает Node и Postgres.
+# Здесь Docker решает ровно две задачи — воспроизводимость на чистой Ubuntu
+# и автоматический TLS, без которого Telegram не примет ни webhook, ни Mini App.
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ostro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задай пароль в .env}
+      POSTGRES_DB: ${POSTGRES_DB:-ostro}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # API стартует только после того, как база реально готова принимать запросы,
+      # а не просто когда контейнер поднялся.
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-ostro}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: infra/deploy/Dockerfile
+      target: api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-ostro}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ostro}
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - '3000'
+
+  worker:
+    build:
+      context: .
+      dockerfile: infra/deploy/Dockerfile
+      target: worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-ostro}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ostro}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./infra/deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./apps/web/dist:/srv/web:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      DOMAIN: ${DOMAIN:?укажи домен в .env}
+    depends_on:
+      - api
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

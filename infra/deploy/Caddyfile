@@ -1,0 +1,41 @@
+# Caddy сам получает и продлевает сертификат Let's Encrypt для {$DOMAIN}.
+# Ради этого он и стоит впереди: Telegram работает только по HTTPS,
+# а возиться с certbot на каждом сервере не хочется.
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Mini App — статика, собранная Vite.
+	handle {
+		root * /srv/web
+		try_files {path} /index.html
+		file_server
+	}
+
+	# API и вебхуки уходят в контейнер приложения.
+	handle /api/* {
+		reverse_proxy api:3000
+	}
+
+	handle /hooks/* {
+		reverse_proxy api:3000
+	}
+
+	handle /health {
+		reverse_proxy api:3000
+	}
+
+	header {
+		# Mini App открывается внутри iframe Telegram — запрещать фреймы нельзя.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	log {
+		output file /data/access.log {
+			roll_size 10mb
+			roll_keep 5
+		}
+	}
+}

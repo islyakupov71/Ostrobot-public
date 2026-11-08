@@ -1,0 +1,15 @@
+{
+  "name": "@ostro/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit", "test": "node --test" },
+  "dependencies": {
+    "@ostro/shared": "workspace:*",
+    "date-fns": "^4.1.0",
+    "@date-fns/tz": "^1.2.0"
+  }
+}

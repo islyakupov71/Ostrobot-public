@@ -1,0 +1,231 @@
+@import 'tailwindcss';
+
+/**
+ * Дизайн-система ОСТРО.
+ *
+ * Направление взято из мира, в котором живут пользователи: инженерные
+ * изыскания и проектирование. Отсюда бумага и графит вместо нейтрального
+ * серого, сетка миллиметровки вместо плоского фона, моноширинный шрифт
+ * на числах — как в штампе чертежа, и сигнальный оранжевый геодезической
+ * вешки в роли единственного акцента.
+ *
+ * Правило, которое держит систему: боевой оранжевый тратится только на то,
+ * что требует действия прямо сейчас. Как только им начинают красить всё
+ * подряд, он перестаёт что-либо значить.
+ */
+
+@theme {
+  /* ---------------------------------------------------------- Палитра */
+
+  /** Графит: цвет грифеля на бумаге, а не абстрактный чёрный. */
+  --color-ink-950: #0e1116;
+  --color-ink-900: #14181f;
+  --color-ink-800: #1c222b;
+  --color-ink-700: #2a323d;
+  --color-ink-600: #3d4854;
+  --color-ink-500: #5a6672;
+  --color-ink-400: #7d8894;
+  --color-ink-300: #a4aeb8;
+
+  /** Бумага и калька — тёплые, но без желтизны кремового. */
+  --color-paper-50: #fafaf7;
+  --color-paper-100: #f3f3ef;
+  --color-paper-200: #e9eae5;
+
+  /** Сетка миллиметровки: холодный сине-серый, почти невидимый. */
+  --color-grid-light: #c9d3d9;
+  --color-grid-dark: #232c36;
+
+  /** Сигнальный оранжевый: жилет, вешка, разметка. Только для срочного. */
+  --color-signal-500: #ff4d12;
+  --color-signal-600: #e63e08;
+  --color-signal-100: #ffe6dd;
+
+  /** Бирюза геодезических отметок — «в работе», спокойное движение. */
+  --color-survey-500: #0e7c7b;
+  --color-survey-400: #14a09e;
+  --color-survey-100: #d6f0ef;
+
+  /** Красная тушь правок: только просрочка. */
+  --color-overdue-500: #c1121f;
+  --color-overdue-100: #fbdcde;
+
+  /** Готово — приглушённый, чтобы выполненное не спорило за внимание. */
+  --color-done-500: #4a7c59;
+  --color-done-100: #dfeade;
+
+  /* -------------------------------------------------------- Шрифты */
+
+  /**
+   * Три роли. Oswald — узкий, вертикальный: так подписывают штампы
+   * чертежей. Onest несёт основной текст и хорош на кириллице.
+   * JetBrains Mono держит числа, коды задач и отметки времени —
+   * там, где важно, чтобы цифры стояли в колонку.
+   */
+  --font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --font-body: 'Onest', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+
+  /* --------------------------------------------------- Прочее */
+
+  --radius-card: 4px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgb(20 24 31 / 0.06), 0 4px 12px rgb(20 24 31 / 0.04);
+  --shadow-lift: 0 2px 4px rgb(20 24 31 / 0.08), 0 12px 28px rgb(20 24 31 / 0.10);
+}
+
+/* ================================================== Семантические токены */
+
+:root {
+  color-scheme: light;
+
+  --bg: var(--color-paper-50);
+  --bg-elevated: #ffffff;
+  --bg-sunken: var(--color-paper-100);
+
+  --text: var(--color-ink-900);
+  --text-muted: var(--color-ink-500);
+  --text-faint: var(--color-ink-400);
+
+  --line: var(--color-paper-200);
+  --line-strong: var(--color-ink-300);
+  --grid: var(--color-grid-light);
+
+  --accent: var(--color-signal-500);
+  --accent-soft: var(--color-signal-100);
+
+  /** Насколько заметна фоновая сетка. В тёмной теме она должна быть тише. */
+  --grid-opacity: 0.5;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg: var(--color-ink-950);
+  --bg-elevated: var(--color-ink-900);
+  --bg-sunken: #0a0d11;
+
+  --text: var(--color-paper-100);
+  --text-muted: var(--color-ink-400);
+  --text-faint: var(--color-ink-500);
+
+  --line: var(--color-ink-800);
+  --line-strong: var(--color-ink-700);
+  --grid: var(--color-grid-dark);
+
+  --accent: var(--color-signal-500);
+  --accent-soft: rgb(255 77 18 / 0.14);
+
+  --grid-opacity: 0.65;
+  --shadow-card: none;
+  --shadow-lift: 0 12px 32px rgb(0 0 0 / 0.5);
+}
+
+/* ============================================================== Основа */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+
+  /**
+   * Миллиметровка.
+   *
+   * Две сетки друг поверх друга — крупная и мелкая, как на настоящей
+   * бумаге. Она почти не видна и не должна: её работа — убрать ощущение
+   * пустого белого экрана, а не украсить его.
+   */
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size:
+    40px 40px,
+    40px 40px,
+    8px 8px,
+    8px 8px;
+  background-position: -1px -1px;
+  /** Мелкая сетка гасится сильнее крупной — иначе фон становится шумом. */
+  background-blend-mode: normal;
+}
+
+body::before {
+  /** Слой, приглушающий сетку до нужной прозрачности, не трогая контент. */
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  opacity: calc(1 - var(--grid-opacity) * 0.12);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ======================================================== Типографика */
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+/** Заголовок раздела: широкий трекинг делает его меткой, а не фразой. */
+.t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* =========================================================== Доступность */
+
+:where(button, a, [role='button'], input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/** Безопасные зоны: Mini App разворачивается под системные панели телефона. */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 8px);
+}
+
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 16px);
+}

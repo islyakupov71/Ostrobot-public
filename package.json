@@ -1,0 +1,33 @@
+{
+  "name": "ostro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ОСТРО — Telegram-бот и Mini App для управления задачами, дедлайнами и отчётностью команды",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:api": "pnpm --filter @ostro/api dev",
+    "dev:worker": "pnpm --filter @ostro/worker dev",
+    "dev:web": "pnpm --filter @ostro/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md,css}\"",
+    "db:generate": "pnpm --filter @ostro/db generate",
+    "db:migrate": "pnpm --filter @ostro/db migrate",
+    "db:studio": "pnpm --filter @ostro/db studio",
+    "db:seed": "pnpm --filter @ostro/db seed",
+    "build:server": "node build.mjs api && node build.mjs worker",
+    "build:all": "pnpm --filter @ostro/web build && pnpm build:server"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "esbuild": "^0.28.2",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
