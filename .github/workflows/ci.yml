@@ -11,21 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Read the exact pnpm version from package.json's packageManager field.
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
-      # РўРёРїС‹ РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ СЂР°РЅСЊС€Рµ СЃР±РѕСЂРєРё: РѕС€РёР±РєР° С‚РёРїР° РЅР°С…РѕРґРёС‚СЃСЏ Р·Р° СЃРµРєСѓРЅРґС‹,
-      # Р° РїР°РґРµРЅРёРµ СЃР±РѕСЂРєРё РїРѕ С‚РѕР№ Р¶Рµ РїСЂРёС‡РёРЅРµ вЂ” Р·Р° РјРёРЅСѓС‚С‹.
-      - name: РџСЂРѕРІРµСЂРєР° С‚РёРїРѕРІ
+      - name: Type check
         run: pnpm -r typecheck
 
-      - name: РЎР±РѕСЂРєР°
+      - name: Production build
         run: pnpm build:all
